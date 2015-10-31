@@ -1,0 +1,10 @@
+{
+  "name": "team-whiteboard",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Ahmed Rafiq",
+  "dependencies": {
+    "express": "^4.13.3",
+    "socket.io": "^1.3.7"
+  }
+}
