@@ -18,7 +18,7 @@
     </head>
 
     <body>
-        <canvas width="1000px" height="500px" style="background: #CCCCCC;">
+        <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
             Browser does not support canvas.
         </canvas>
     </body>
@@ -31,22 +31,28 @@
         var LEFT_MOUSE = 0,
             MIDDLE_MOUSE = 1,
             RIGHT_MOUSE = 2;
+        
+        var socket = io();
+        
+        var ctx = $('#canvas')[0].getContext('2d');
+        ctx.lineWidth = 4;
+        var color = '#000000';
+        
+        socket.on('setColor', function(col) {
+        	color = col;
+        });
+        
+        socket.on('remoteDraw', function(x1, y1, x2, y2) {
+        	ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = '#000000';
+            ctx.stroke();
+        });
 
         function handleStart(evt) {
             evt.preventDefault();
-            console.log("Touch Start");
-            var el = document.getElementsByTagName("canvas")[0];
-            var ctx = el.getContext("2d");
-
-            console.log("Touch at " + evt.clientX + ", " + evt.clientY);
-            ctx.beginPath();
-            // a circle at the start
-            ctx.arc(evt.clientX, evt.clientY, 4, 0, 2 * Math.PI, false);
-            ctx.fill();
-
-            lastX = evt.clientX;
-            lastY = evt.clientY;
-
+            
             switch (event.button) {
             case LEFT_MOUSE:
                 leftMouseDown = true;
@@ -55,20 +61,31 @@
                 rightMouseDown = true;
                 break;
             }
+
+            if (leftMouseDown) {
+                ctx.beginPath();
+                // a circle at the start
+                ctx.arc(evt.clientX, evt.clientY, 4, 0, 2 * Math.PI, false);
+                ctx.fillStyle = color;
+                ctx.fill();
+            }
+
+            lastX = evt.clientX;
+            lastY = evt.clientY;
         }
 
         function handleMove(evt) {
             if (leftMouseDown) {
                 evt.preventDefault();
-                var el = document.getElementsByTagName("canvas")[0];
-                var ctx = el.getContext("2d");
-
+                
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
                 ctx.lineTo(evt.clientX, evt.clientY);
-                ctx.lineWidth = 4;
+                ctx.strokeStyle = color;
                 ctx.stroke();
 
+                socket.emit('remoteDraw', lastX, lastY, evt.clientX, evt.clientY);
+                
                 lastX = evt.clientX;
                 lastY = evt.clientY;
             }
@@ -76,16 +93,16 @@
 
         function handleEnd(evt) {
             evt.preventDefault();
-            var el = document.getElementsByTagName("canvas")[0];
-            var ctx = el.getContext("2d");
-
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(evt.clientX, evt.clientY);
-            // and a square at the end
-            ctx.fillRect(evt.clientX - 4, evt.clientY - 4, 8, 8);
-
+            
+            if (leftMouseDown) {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(evt.clientX, evt.clientY);
+                // and a square at the end
+                ctx.fillStyle = color;
+                ctx.fillRect(evt.clientX - 4, evt.clientY - 4, 8, 8);
+            }
+            
             switch (event.button) {
             case LEFT_MOUSE:
                 leftMouseDown = false;
@@ -94,14 +111,12 @@
                 rightMouseDown = false;
                 break;
             }
-
-            console.log("Touch End");
         }
 
-        var el = document.getElementsByTagName("canvas")[0];
-        el.addEventListener("mousedown", handleStart, false);
-        el.addEventListener("mouseup", handleEnd, false);
-        el.addEventListener("mousemove", handleMove, false);
+        var el = $("#canvas");
+        el.mousedown(handleStart);
+        el.mouseup(handleEnd);
+        el.mousemove(handleMove);
         console.log("Added Event Listeners");
     </script>
 
