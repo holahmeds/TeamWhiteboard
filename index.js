@@ -1,10 +1,4 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-
-app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/room.html');
-});
+var io = require('socket.io')(3000);
 
 var userColor = new Array();
 io.on('connection', function(socket) {
@@ -23,8 +17,4 @@ io.on('connection', function(socket) {
 	socket.on('remoteDraw', function(x1, y1, x2, y2) {
 		socket.broadcast.emit('remoteDraw', x1, y1, x2, y2);
 	});
-});
-
-http.listen(3000, function() {
-    console.log("Listening");
 });
