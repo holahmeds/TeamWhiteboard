@@ -21,6 +21,7 @@
         <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
             Browser does not support canvas.
         </canvas>
+        <div><p>Room Id <?php echo $roomID ?></p></div>
     </body>
 
     <script>
@@ -32,7 +33,7 @@
             MIDDLE_MOUSE = 1,
             RIGHT_MOUSE = 2;
         
-        var socket = io();
+        var socket = io('http://localhost:3000');
         
         var ctx = $('#canvas')[0].getContext('2d');
         ctx.lineWidth = 4;
