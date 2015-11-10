@@ -13,6 +13,11 @@ class RoomController extends Controller
      */
     public function indexAction($id)
     {
-        return $this->render('room.php', array('roomID' => $id));
+        $context = $this->get('security.token_storage');
+
+        return $this->render('room.php', array(
+            'roomID' => $id,
+            'user' => $context->getToken()->getUsername()
+        ));
     }
 }

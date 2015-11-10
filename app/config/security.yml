@@ -32,3 +32,6 @@ security:
 
             logout: true
             anonymous: true
+
+    access_control:
+        - { path: ^/room, role: ROLE_USER }

@@ -1,3 +1,16 @@
+<?php
+    use Firebase\JWT\JWT;
+
+    // TODO move this to a config file
+    $key = "secret_key";
+
+    $token = array(
+        'user' => $user,
+        'roomID' => $roomID
+        );
+
+    $jwt = JWT::encode($token, $key);
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -21,7 +34,9 @@
         <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
             Browser does not support canvas.
         </canvas>
-        <div><p>Room Id <?php echo $roomID ?></p></div>
+        <div><p>Room Id: <?php echo $roomID ?></p></div>
+        <div><p>Username: <?php echo $user ?></p></div>
+        <div><p>JWT: <?php echo $jwt ?></p></div>
     </body>
 
     <script>
@@ -33,7 +48,7 @@
             MIDDLE_MOUSE = 1,
             RIGHT_MOUSE = 2;
         
-        var socket = io('http://localhost:3000');
+        var socket = io('http://localhost:3000', { 'query': 'token=<?php echo $jwt; ?>' });
         
         var ctx = $('#canvas')[0].getContext('2d');
         ctx.lineWidth = 4;
