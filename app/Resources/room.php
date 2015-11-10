@@ -54,7 +54,7 @@
         function handleStart(evt) {
             evt.preventDefault();
             
-            switch (event.button) {
+            switch (evt.button) {
             case LEFT_MOUSE:
                 leftMouseDown = true;
                 break;
@@ -104,7 +104,7 @@
                 ctx.fillRect(evt.clientX - 4, evt.clientY - 4, 8, 8);
             }
             
-            switch (event.button) {
+            switch (evt.button) {
             case LEFT_MOUSE:
                 leftMouseDown = false;
                 break;
