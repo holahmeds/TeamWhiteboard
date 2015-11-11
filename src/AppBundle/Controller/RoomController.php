@@ -17,7 +17,8 @@ class RoomController extends Controller
 
         return $this->render('room.php', array(
             'roomID' => $id,
-            'user' => $context->getToken()->getUsername()
+            'user' => $context->getToken()->getUsername(),
+            'key' => $this->getParameter('jwt_secret')
         ));
     }
 }

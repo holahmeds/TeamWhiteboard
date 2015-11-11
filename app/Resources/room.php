@@ -1,9 +1,6 @@
 <?php
     use Firebase\JWT\JWT;
 
-    // TODO move this to a config file
-    $key = "secret_key";
-
     $token = array(
         'user' => $user,
         'roomID' => $roomID
