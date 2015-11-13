@@ -19,7 +19,7 @@ class RoomManager
 
     public function getRoom($rid)
     {
-        return $this->rooms[$rid];
+        return (array_key_exists($rid, $this->rooms)) ? $this->rooms[$rid] : null;
     }
 
     public function deleteRoom($rid)

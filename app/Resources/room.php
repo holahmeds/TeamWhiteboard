@@ -23,7 +23,6 @@
             }
         </style>
 
-        <script src="https://cdn.socket.io/socket.io-1.3.7.js"></script>
         <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     </head>
 
@@ -44,24 +43,27 @@
         var LEFT_MOUSE = 0,
             MIDDLE_MOUSE = 1,
             RIGHT_MOUSE = 2;
-        
-        var socket = io('http://localhost:3000', { 'query': 'token=<?php echo $jwt; ?>' });
-        
+
         var ctx = $('#canvas')[0].getContext('2d');
         ctx.lineWidth = 4;
         var color = '#000000';
         
-        socket.on('setColor', function(col) {
-        	color = col;
-        });
+        var conn = new WebSocket('ws://localhost:3000');
+
+        conn.onopen = function(e) {
+            conn.send(JSON.stringify({
+                type : 'authenticate',
+                jwt : '<?php echo $jwt; ?>'
+            }));
+        }
         
-        socket.on('remoteDraw', function(x1, y1, x2, y2) {
-        	ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.strokeStyle = '#000000';
-            ctx.stroke();
-        });
+        conn.onmessage = function(e) {
+            var mseg = JSON.parse(e.data);
+
+            if (mseg.type == 'set color') {
+                color = mseg.color;
+            }
+        }
 
         function handleStart(evt) {
             evt.preventDefault();
@@ -97,7 +99,7 @@
                 ctx.strokeStyle = color;
                 ctx.stroke();
 
-                socket.emit('remoteDraw', lastX, lastY, evt.clientX, evt.clientY);
+//                socket.emit('remoteDraw', lastX, lastY, evt.clientX, evt.clientY);
                 
                 lastX = evt.clientX;
                 lastY = evt.clientY;
