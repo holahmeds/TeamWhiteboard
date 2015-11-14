@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <table>
+    {% for value in rooms %}
+      <tr>
+        <td>{{ value.id }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  <a href="/create-room">Create Room</a>
+{% endblock %}
