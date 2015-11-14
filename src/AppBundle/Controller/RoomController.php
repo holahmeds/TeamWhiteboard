@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use AppBundle\Entity\User;
 
 class RoomController extends Controller
 {
@@ -57,6 +58,30 @@ class RoomController extends Controller
     		//error
     	} else {
     		$manager->deleteRoom($room);
+    		return $this->redirect('/my-rooms');
+    	}
+    }
+    
+    /**
+     * @Route("/add-user/{rid}/{username}", name="add_user_to_room")
+     */
+    public function addUserToRoom($rid, $username) {
+    	$manager = $this->get('room_manager');
+    	$entityManager = $this->getDoctrine()->getManager();
+    	
+    	$room = $manager->getRoomByID($rid);
+    	$user = $entityManager->getRepository('AppBundle:User')->findOneByUsername($username);
+    	
+    	if (!$room) {
+    		//error
+    	} else if ($room->getCreator() != $this->getUser()) {
+    		//error
+    	} else if (!$user) {
+    		//error
+    	} else {
+    		$room->addMember($user);
+    		$entityManager->flush();
+    		
     		return $this->redirect('/my-rooms');
     	}
     }
