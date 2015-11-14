@@ -32,7 +32,7 @@ class RoomController extends Controller
     }
 
     /**
-     * @Route("/create-room", name="")
+     * @Route("/create-room", name="create_room")
      */
     public function createRoom()
     {
@@ -43,6 +43,24 @@ class RoomController extends Controller
         
         $logger->info("Created room $rid");
 
-        return $this->redirect("my-rooms");
+        return $this->redirect('/my-rooms');
+    }
+    
+    /**
+     * @Route("/delete-room/{rid}", name="delete_room")
+     */
+    public function deleteRoom($rid) {
+    	$manager = $this->get('room_manager');
+    	
+    	$room = $manager->getRoomByID($rid);
+    	
+    	if (!$room) {
+    		//TODO make error page
+    	} else if ($room->getCreator() != $this->getUser()) {
+    		//error
+    	} else {
+    		$manager->deleteRoom($room);
+    		return $this->redirect('/my-rooms');
+    	}
     }
 }

@@ -5,6 +5,7 @@
     {% for value in rooms %}
       <tr>
         <td>{{ value.id }}</td>
+        <td><a href="/delete-room/{{ value.id }}">Delete</a></td>
       </tr>
     {% endfor %}
   </table>
