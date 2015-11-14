@@ -24,11 +24,8 @@ class RoomController extends Controller
     /**
      * @Route("/my-rooms", name="user_rooms")
      */
-    public function myRooms()
-    {
-        return $this->render('room/user_rooms.html.twig', array(
-            'rooms' => $this->getUser()->getCreatedRooms()
-        ));
+    public function myRooms() {
+        return $this->render('room/user_rooms.html.twig');
     }
 
     /**

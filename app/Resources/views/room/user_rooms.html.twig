@@ -1,13 +1,39 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-  <table>
-    {% for value in rooms %}
-      <tr>
-        <td>{{ value.id }}</td>
-        <td><a href="/delete-room/{{ value.id }}">Delete</a></td>
-      </tr>
-    {% endfor %}
-  </table>
-  <a href="/create-room">Create Room</a>
+	<h1>Created Rooms</h1>
+	<table border="1">
+			<tr>
+				<th>Room ID</th>
+				<th>Members</th>
+				<th>Actions</th>
+			</tr>
+		{% for room in app.user.createdRooms %}
+			<tr>
+				<td>{{ room.id }}</td>
+				<td>{{ room.members|join(',') }}</td>
+				<td>
+					<a href="/delete-room/{{ room.id }}">Delete</a>
+				</td>
+			</tr>
+    	{% endfor %}
+  	</table>
+  	
+  	<a href="/create-room">Create Room</a> 
+  	
+  	<h1>Member of Rooms</h1>
+  	<table border="1">
+  			<tr>
+  				<th>Room ID</th>
+  				<th>Creator</th>
+  				<th>Members</th>
+  			</tr>
+  		{% for room in app.user.memberOfRooms %}
+  			<tr>
+  				<td>{{ room.id }}</td>
+  				<td>{{ room.creator.username }}</td>
+  				<td>{{ room.members|join(',') }}</td>
+  			</tr>
+  		{% endfor %}
+  	</table>
 {% endblock %}
