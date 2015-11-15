@@ -30,8 +30,8 @@ class User extends BaseUser
      */
     protected $memberOfRooms;
     
-    public function __construct()
-    {
+    public function __construct() {
+        parent::__construct();
     	$this->createdRooms = new ArrayCollection();
     	$this->memberOfRooms = new ArrayCollection();
     }
