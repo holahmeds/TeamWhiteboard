@@ -41,7 +41,7 @@ class RoomController extends Controller
         
         $logger->info("Created room $rid");
 
-        return $this->redirect('/my-rooms');
+        return $this->redirectToRoute('user_rooms');
     }
     
     /**
@@ -58,7 +58,7 @@ class RoomController extends Controller
     		//error
     	} else {
     		$manager->deleteRoom($room);
-    		return $this->redirect('/my-rooms');
+    		return $this->redirectToRoute('user_rooms');
     	}
     }
     
@@ -82,7 +82,7 @@ class RoomController extends Controller
     		$room->addMember($user);
     		$entityManager->flush();
     		
-    		return $this->redirect('/my-rooms');
+    		return $this->redirectToRoute('user_rooms');
     	}
     }
 }
