@@ -5,20 +5,30 @@ namespace AppBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Entity\User;
+use Firebase\JWT\JWT;
 
 class RoomController extends Controller
 {
     /**
      * @Route("/room/{id}", name="room")
      */
-    public function indexAction($id)
-    {
-        $context = $this->get('security.token_storage');
-
-        return $this->render('room.php', array(
-            'roomID' => $id,
-            'user' => $context->getToken()->getUsername(),
-            'key' => $this->getParameter('jwt_secret')
+    public function room($id) {
+        $manager = $this->get('room_manager');
+        $room = $manager->getRoomByID($id);
+        
+        if (!$room || !($this->getUser() == $room->getCreator() || $room->getMembers()->contains($this->getUser()))) {
+            $this->addFlash('error', 'Room either does not exist or you do not have access to it');
+            return $this->redirectToRoute('user_rooms');
+        }
+        
+        $token = array(
+            'user' => $this->getUser()->getUsername(),
+            'roomID' => $id
+        );
+        
+        return $this->render('room/room.html.twig', array(
+            'room' => $room,
+            'jwt' => JWT::encode($token, $this->getParameter('jwt_secret'))
         ));
     }
 

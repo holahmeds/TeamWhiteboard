@@ -1,40 +1,16 @@
-<?php
-    use Firebase\JWT\JWT;
+{% extends 'base.html.twig' %}
 
-    $token = array(
-        'user' => $user,
-        'roomID' => $roomID
-        );
+{% block body %}
+    <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
+        Browser does not support canvas.
+    </canvas>
+    <div><p>Room Id: {{ room.id }}</p></div>
+    <div><p>Username: {{ app.user.username }}</p></div>
+    <div><p>JWT: {{ jwt }}</p></div>
+{% endblock %}
 
-    $jwt = JWT::encode($token, $key);
-?>
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-
-        <title>Room</title>
-
-        <style>
-            body {
-                margin: 0;
-                border-width: 0;
-                padding: 0;
-            }
-        </style>
-
-        <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    </head>
-
-    <body>
-        <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
-            Browser does not support canvas.
-        </canvas>
-        <div><p>Room Id: <?php echo $roomID ?></p></div>
-        <div><p>Username: <?php echo $user ?></p></div>
-        <div><p>JWT: <?php echo $jwt ?></p></div>
-    </body>
-
+{% block javascripts %}
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         var lastX,
             lastY;
@@ -134,5 +110,4 @@
         el.mousemove(handleMove);
         console.log("Added Event Listeners");
     </script>
-
-</html>
+{% endblock %}
