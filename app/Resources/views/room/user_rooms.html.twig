@@ -13,14 +13,14 @@
 				<td>{{ room.id }}</td>
 				<td>{{ room.members|join(',') }}</td>
 				<td>
-					<a href="/delete-room/{{ room.id }}">Delete</a>
+					<a href="{{ path('delete_room', { 'rid' : room.id } ) }}">Delete</a>
 					<a href="#" onclick="addUserToRoom({{ room.id }}); return false;">Add User</a>
 				</td>
 			</tr>
     	{% endfor %}
   	</table>
   	
-  	<a href="/create-room">Create Room</a> 
+  	<a href="{{ path('create_room') }}">Create Room</a> 
   	
   	<h1>Member of Rooms</h1>
   	<table border="1">
@@ -44,7 +44,8 @@
 		function addUserToRoom(roomID) {
 			var username = prompt("Enter username");
 			if (username != null) {
-				window.location.href = "/add-user/" + roomID + "/" + username;
+			    var temp = '{{ path('add_user_to_room', { 'rid' : 'rid_placeholder', 'username' : 'username_placeholder' } ) }}';
+				window.location.href = temp.replace('rid_placeholder', roomID).replace('username_placeholder', username);
 			}
 		}
 	</script>
