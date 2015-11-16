@@ -52,14 +52,13 @@ class RoomController extends Controller
     	
     	$room = $manager->getRoomByID($rid);
     	
-    	if (!$room) {
-    		//TODO make error page
-    	} else if ($room->getCreator() != $this->getUser()) {
-    		//error
+    	if (!$room || $room->getCreator() != $this->getUser()) {
+    		$this->addFlash('error', 'This room either does not exist or is not created by you.');
     	} else {
     		$manager->deleteRoom($room);
-    		return $this->redirectToRoute('user_rooms');
     	}
+    	
+    	return $this->redirectToRoute('user_rooms');
     }
     
     /**
@@ -72,17 +71,19 @@ class RoomController extends Controller
     	$room = $manager->getRoomByID($rid);
     	$user = $entityManager->getRepository('AppBundle:User')->findOneByUsername($username);
     	
-    	if (!$room) {
-    		//error
-    	} else if ($room->getCreator() != $this->getUser()) {
-    		//error
+    	if (!$room || $room->getCreator() != $this->getUser()) {
+    		$this->addFlash('error', 'This room either does not exist or is not created by you.');
     	} else if (!$user) {
-    		//error
+    		$this->addFlash('error', 'This user does not exist');
+    	} else if ($room->getMembers()->contains($user)) {
+    	    $this->addFlash('error', 'User is already a member of the room');
+    	} else if ($user == $room->getCreator()) {
+    	    $this->addFlash('error', 'You are the creator. You do not need to explicitly add yourself as a member');
     	} else {
     		$room->addMember($user);
     		$entityManager->flush();
-    		
-    		return $this->redirectToRoute('user_rooms');
     	}
+    	
+    	return $this->redirectToRoute('user_rooms');
     }
 }
