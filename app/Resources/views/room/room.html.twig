@@ -29,7 +29,7 @@
         conn.onopen = function(e) {
             conn.send(JSON.stringify({
                 type : 'authenticate',
-                jwt : '<?php echo $jwt; ?>'
+                jwt : '{{ jwt }}'
             }));
         }
         
@@ -38,6 +38,12 @@
 
             if (mseg.type == 'set color') {
                 color = mseg.color;
+            } else if (mseg.type == 'stroke') {
+                ctx.beginPath();
+                ctx.moveTo(mseg.x1, mseg.y1);
+                ctx.lineTo(mseg.x2, mseg.y2);
+                ctx.strokeStyle = mseg.color;
+                ctx.stroke();
             }
         }
 
@@ -75,7 +81,13 @@
                 ctx.strokeStyle = color;
                 ctx.stroke();
 
-//                socket.emit('remoteDraw', lastX, lastY, evt.clientX, evt.clientY);
+                conn.send(JSON.stringify({
+                    type : 'stroke',
+                    x1 : lastX,
+                    y1 : lastY,
+                    x2 : evt.clientX,
+                    y2 : evt.clientY
+                }));
                 
                 lastX = evt.clientX;
                 lastY = evt.clientY;

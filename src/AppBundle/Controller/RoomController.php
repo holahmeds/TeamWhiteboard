@@ -21,14 +21,14 @@ class RoomController extends Controller
             return $this->redirectToRoute('user_rooms');
         }
         
-        $token = array(
+        $payload = array(
             'user' => $this->getUser()->getUsername(),
             'roomID' => $id
         );
         
         return $this->render('room/room.html.twig', array(
             'room' => $room,
-            'jwt' => JWT::encode($token, $this->getParameter('jwt_secret'))
+            'jwt' => JWT::encode($payload, $this->getParameter('jwt_secret'))
         ));
     }
 
