@@ -1,6 +1,11 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+	<div>
+		<input id="color-value" onchange="setColor($('#color-value').val())" hidden="true" value="#000000">
+		<canvas id="color-preview" height="50px" width="50px"></canvas>
+		<button id="color-picker" class="jscolor" data-jscolor="{valueElement: 'color-value', styleElement: 'color-preview', closable: true, hash: true}">Choose Color</button>
+	</div>
     <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
         Browser does not support canvas.
     </canvas>
@@ -10,7 +15,10 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    {% javascripts '@AppBundle/Resources/public/javascript/jquery-2.1.4.min.js'
+                   '@AppBundle/Resources/public/javascript/jscolor.min.js'  %}
+    	<script src="{{ asset_url }}"></script>
+    {% endjavascripts  %}
     <script>
         var lastX,
             lastY;
@@ -36,9 +44,7 @@
         conn.onmessage = function(e) {
             var mseg = JSON.parse(e.data);
 
-            if (mseg.type == 'set color') {
-                color = mseg.color;
-            } else if (mseg.type == 'stroke') {
+            if (mseg.type == 'stroke') {
                 ctx.beginPath();
                 ctx.moveTo(mseg.x1, mseg.y1);
                 ctx.lineTo(mseg.x2, mseg.y2);
@@ -114,6 +120,14 @@
                 rightMouseDown = false;
                 break;
             }
+        }
+
+        function setColor(col) {
+            color = col;
+            conn.send(JSON.stringify({
+                type : 'set color',
+                color : col
+            }));
         }
 
         var el = $("#canvas");

@@ -45,17 +45,10 @@ class MessageHandler implements MessageComponentInterface {
                     $this->roomUsers[$decoded_jwt['roomID']] = new \SplObjectStorage();
                 }
 
-                $color = '#' . dechex(rand(0, 2**24 - 1));
-
                 $this->roomUsers[$decoded_jwt['roomID']]->attach($from, array(
                 		'user' => $decoded_jwt['user'],
-                		'color' => $color
+                		'color' => '#000000'
                 ));
-
-                $from->send(json_encode(array(
-                    'type' => 'set color',
-                    'color' => $color
-                )));
 
                 echo "User $decoded_jwt[user] connected to $decoded_jwt[roomID]\n";
             } else {
@@ -84,6 +77,11 @@ class MessageHandler implements MessageComponentInterface {
 				
 				$roomConns->next();
 			}
+		} else if ($msg['type'] == 'set color') {
+			$roomID = $this->connectionRoom[$from];
+			$userData = $this->roomUsers[$roomID]->offsetGet($from);
+			$userData['color'] = $msg['color'];
+			$this->roomUsers[$roomID]->offsetSet($from, $userData);
 		}
     }
 
