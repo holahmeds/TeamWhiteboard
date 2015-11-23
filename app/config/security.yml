@@ -18,6 +18,7 @@ security:
             security: false
 
         main:
+            pattern: ^/
             # activate different ways to authenticate
 
             # http_basic: ~
@@ -34,4 +35,7 @@ security:
             anonymous: true
 
     access_control:
-        - { path: ^/room, role: ROLE_USER }
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, role: ROLE_USER}
