@@ -68,13 +68,13 @@
             if (leftMouseDown) {
                 ctx.beginPath();
                 // a circle at the start
-                ctx.arc(evt.clientX, evt.clientY, 4, 0, 2 * Math.PI, false);
+                ctx.arc(evt.offsetX, evt.offsetY, 4, 0, 2 * Math.PI, false);
                 ctx.fillStyle = color;
                 ctx.fill();
             }
 
-            lastX = evt.clientX;
-            lastY = evt.clientY;
+            lastX = evt.offsetX;
+            lastY = evt.offsetY;
         }
 
         function handleMove(evt) {
@@ -83,7 +83,7 @@
                 
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
-                ctx.lineTo(evt.clientX, evt.clientY);
+                ctx.lineTo(evt.offsetX, evt.offsetY);
                 ctx.strokeStyle = color;
                 ctx.stroke();
 
@@ -91,12 +91,12 @@
                     type : 'stroke',
                     x1 : lastX,
                     y1 : lastY,
-                    x2 : evt.clientX,
-                    y2 : evt.clientY
+                    x2 : evt.offsetX,
+                    y2 : evt.offsetY
                 }));
                 
-                lastX = evt.clientX;
-                lastY = evt.clientY;
+                lastX = evt.offsetX;
+                lastY = evt.offsetY;
             }
         }
 
@@ -106,10 +106,10 @@
             if (leftMouseDown) {
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
-                ctx.lineTo(evt.clientX, evt.clientY);
+                ctx.lineTo(evt.offsetX, evt.offsetY);
                 // and a square at the end
                 ctx.fillStyle = color;
-                ctx.fillRect(evt.clientX - 4, evt.clientY - 4, 8, 8);
+                ctx.fillRect(evt.offsetX - 4, evt.offsetY - 4, 8, 8);
             }
             
             switch (evt.button) {
