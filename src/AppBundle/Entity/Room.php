@@ -16,89 +16,83 @@ class Room {
 	 * @ORM\Id
 	 * @ORM\GeneratedValue(strategy="AUTO")
 	 */
-    protected $id;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="createdRooms")
-     * @ORM\JoinColumn(name="creator", referencedColumnName="id")
-     */
-    protected $creator;
-    
-    /**
-     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User", inversedBy="memberOfRooms")
-     * @JoinTable(name="user_rooms")
-     */
-    protected $members;
-    
-    public function __construct() {
-    	$this->members = new ArrayCollection();
-    }
+	protected $id;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User", inversedBy="createdRooms")
+	 * @ORM\JoinColumn(name="creator", referencedColumnName="id")
+	 */
+	protected $creator;
+	
+	/**
+	 * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User", inversedBy="memberOfRooms")
+	 * @JoinTable(name="user_rooms")
+	 */
+	protected $members;
 
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
+	public function __construct() {
+		$this->members = new ArrayCollection();
+	}
 
-    /**
-     * Set creator
-     *
-     * @param \AppBundle\Entity\User $creator
-     *
-     * @return Room
-     */
-    public function setCreator(User $creator = null)
-    {
-        $this->creator = $creator;
+	/**
+	 * Get id
+	 *
+	 * @return integer
+	 */
+	public function getId() {
+		return $this->id;
+	}
 
-        return $this;
-    }
+	/**
+	 * Set creator
+	 *
+	 * @param \AppBundle\Entity\User $creator        	
+	 *
+	 * @return Room
+	 */
+	public function setCreator(User $creator = null) {
+		$this->creator = $creator;
+		
+		return $this;
+	}
 
-    /**
-     * Get creator
-     *
-     * @return \AppBundle\Entity\User
-     */
-    public function getCreator()
-    {
-        return $this->creator;
-    }
+	/**
+	 * Get creator
+	 *
+	 * @return \AppBundle\Entity\User
+	 */
+	public function getCreator() {
+		return $this->creator;
+	}
 
-    /**
-     * Add member
-     *
-     * @param \AppBundle\Entity\User $member
-     *
-     * @return Room
-     */
-    public function addMember(\AppBundle\Entity\User $member)
-    {
-        $this->members[] = $member;
+	/**
+	 * Add member
+	 *
+	 * @param \AppBundle\Entity\User $member        	
+	 *
+	 * @return Room
+	 */
+	public function addMember(\AppBundle\Entity\User $member) {
+		$this->members[] = $member;
+		
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * Remove member
+	 *
+	 * @param \AppBundle\Entity\User $member        	
+	 */
+	public function removeMember(\AppBundle\Entity\User $member) {
+		$this->members->removeElement($member);
+	}
 
-    /**
-     * Remove member
-     *
-     * @param \AppBundle\Entity\User $member
-     */
-    public function removeMember(\AppBundle\Entity\User $member)
-    {
-        $this->members->removeElement($member);
-    }
-
-    /**
-     * Get members
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getMembers()
-    {
-        return $this->members;
-    }
+	/**
+	 * Get members
+	 *
+	 * @return \Doctrine\Common\Collections\Collection
+	 */
+	public function getMembers() {
+		return $this->members;
+	}
 }

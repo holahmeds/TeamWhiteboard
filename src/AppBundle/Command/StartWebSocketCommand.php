@@ -10,24 +10,15 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StartWebSocketCommand extends ContainerAwareCommand
-{
-  protected function configure()
-  {
-    $this->setName("room:websocket");
-  }
+class StartWebSocketCommand extends ContainerAwareCommand {
 
-  protected function execute(InputInterface $input, OutputInterface $output)
-  {
-    $server = IoServer::factory(
-        new HttpServer(
-            new WsServer(
-                new MessageHandler($this->getContainer())
-            )
-        ),
-        3000
-    );
+	protected function configure() {
+		$this->setName("room:websocket");
+	}
 
-    $server->run();
-  }
+	protected function execute(InputInterface $input, OutputInterface $output) {
+		$server = IoServer::factory(new HttpServer(new WsServer(new MessageHandler($this->getContainer()))), 3000);
+		
+		$server->run();
+	}
 }
