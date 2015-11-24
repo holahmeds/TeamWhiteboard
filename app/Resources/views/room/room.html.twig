@@ -2,9 +2,10 @@
 
 {% block body %}
 	<div>
-		<input id="color-value" onchange="setColor($('#color-value').val())" hidden="true" value="#000000">
+		<input id="color-value" hidden="true" value="#000000">
+		<button id="color-picker" hidden="true" class="jscolor" data-jscolor="{valueElement: 'color-value', styleElement: 'color-preview', closable: true, hash: true}">Choose Color</button>
+		
 		<canvas id="color-preview" height="50px" width="50px"></canvas>
-		<button id="color-picker" class="jscolor" data-jscolor="{valueElement: 'color-value', styleElement: 'color-preview', closable: true, hash: true}">Choose Color</button>
 		<input type="file" id="image-upload-button">
 	</div>
 	<div id="editable" style="position: relative">
@@ -12,9 +13,6 @@
 	        Browser does not support canvas.
 	    </canvas>
 	</div>
-    <div><p>Room Id: {{ room.id }}</p></div>
-    <div><p>Username: {{ app.user.username }}</p></div>
-    <div><p>JWT: {{ jwt }}</p></div>
 {% endblock %}
 
 {% block javascripts %}
@@ -36,7 +34,6 @@
         var canvas = $('#canvas');
         var ctx = canvas[0].getContext('2d');
         ctx.lineWidth = 4;
-        var color = '#000000';
         
         var conn = new WebSocket('ws://localhost:3000');
 
@@ -91,17 +88,7 @@
 
         function handleStart(evt) {
             evt.preventDefault();
-
             onMouseDown(evt);
-
-            if (leftMouseDown) {
-                ctx.beginPath();
-                // a circle at the start
-                ctx.arc(evt.offsetX, evt.offsetY, 4, 0, 2 * Math.PI, false);
-                ctx.fillStyle = color;
-                ctx.fill();
-            }
-
             lastX = evt.offsetX;
             lastY = evt.offsetY;
         }
@@ -113,12 +100,12 @@
                 ctx.beginPath();
                 ctx.moveTo(lastX, lastY);
                 ctx.lineTo(evt.offsetX, evt.offsetY);
-                ctx.strokeStyle = color;
+                ctx.strokeStyle = getColor();
                 ctx.stroke();
 
                 conn.send(JSON.stringify({
                     type : 'stroke',
-                    color : color,
+                    color : getColor(),
                     x1 : lastX,
                     y1 : lastY,
                     x2 : evt.offsetX,
@@ -132,25 +119,18 @@
 
         function handleEnd(evt) {
             evt.preventDefault();
-            
-            if (leftMouseDown) {
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(evt.offsetX, evt.offsetY);
-                // and a square at the end
-                ctx.fillStyle = color;
-                ctx.fillRect(evt.offsetX - 4, evt.offsetY - 4, 8, 8);
-            }
-            
             onMouseUp(evt);
         }
 
-        function setColor(col) {
-            color = col;
+        function setColor() {
             conn.send(JSON.stringify({
                 type : 'set color',
-                color : col
+                color : $('#color-value').val()
             }));
+        }
+        
+        function getColor() {
+        	return $('#color-value').val();
         }
 
         function imageMouseDown(evt) {
@@ -220,7 +200,11 @@
                 div.mouseup(imageMouseUp);
                 div.mouseleave(onMouseLeave);
             }
-            fr.readAsDataURL(file);
+            if (file.type.split('/')[0] == 'image') {
+            	fr.readAsDataURL(file);
+            } else {
+            	alert("Invalid file type!");
+            }
             
             evt.target.value = null;
         }
@@ -229,7 +213,11 @@
         canvas.mouseup(handleEnd);
         canvas.mousemove(handleMove);
         canvas.mouseleave(onMouseLeave);
-        $("#image-upload-button").change(openFile);
+        $('#image-upload-button').change(openFile);
+        $('#color-value').change(setColor);
+        $('#color-preview').click(function () {
+        	$('#color-picker')[0].jscolor.show();
+        });
         console.log("Added Event Listeners");
     </script>
 {% endblock %}
