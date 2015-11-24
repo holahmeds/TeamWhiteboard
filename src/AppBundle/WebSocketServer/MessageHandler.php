@@ -82,6 +82,22 @@ class MessageHandler implements MessageComponentInterface {
 			$userData = $this->roomUsers[$roomID]->offsetGet($from);
 			$userData['color'] = $msg['color'];
 			$this->roomUsers[$roomID]->offsetSet($from, $userData);
+		} else if ($msg['type'] == 'image') {
+			$roomID = $this->connectionRoom[$from];
+			$roomConns = $this->roomUsers[$roomID];
+				
+			$color = $roomConns[$from]['color'];
+				
+			$roomConns->rewind();
+			while ($roomConns->valid()) {
+				$conn = $roomConns->current();
+			
+				if ($conn != $from) {
+					$conn->send(json_encode($msg));
+				}
+			
+				$roomConns->next();
+			}
 		}
     }
 

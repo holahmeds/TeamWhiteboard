@@ -5,10 +5,13 @@
 		<input id="color-value" onchange="setColor($('#color-value').val())" hidden="true" value="#000000">
 		<canvas id="color-preview" height="50px" width="50px"></canvas>
 		<button id="color-picker" class="jscolor" data-jscolor="{valueElement: 'color-value', styleElement: 'color-preview', closable: true, hash: true}">Choose Color</button>
+		<input type="file" id="image-upload-button">
 	</div>
-    <canvas id="canvas" width="1000px" height="500px" style="background: #CCCCCC;">
-        Browser does not support canvas.
-    </canvas>
+	<div id="editable" style="position: relative">
+	    <canvas id="canvas" width="1300px" height="600px" style="background: #CCCCCC;">
+	        Browser does not support canvas.
+	    </canvas>
+	</div>
     <div><p>Room Id: {{ room.id }}</p></div>
     <div><p>Username: {{ app.user.username }}</p></div>
     <div><p>JWT: {{ jwt }}</p></div>
@@ -21,14 +24,17 @@
     {% endjavascripts  %}
     <script>
         var lastX,
-            lastY;
+            lastY,
+            imageLastX,
+            imageLastY;
         var leftMouseDown = false,
             rightMouseDown = false;
         var LEFT_MOUSE = 0,
             MIDDLE_MOUSE = 1,
             RIGHT_MOUSE = 2;
 
-        var ctx = $('#canvas')[0].getContext('2d');
+        var canvas = $('#canvas');
+        var ctx = canvas[0].getContext('2d');
         ctx.lineWidth = 4;
         var color = '#000000';
         
@@ -50,13 +56,14 @@
                 ctx.lineTo(mseg.x2, mseg.y2);
                 ctx.strokeStyle = mseg.color;
                 ctx.stroke();
+            } else if (mseg.type == 'image') {
+                var image = $("<img src=" + mseg.img + "></img>");
+                ctx.drawImage(image[0], mseg.x, mseg.y);
             }
         }
 
-        function handleStart(evt) {
-            evt.preventDefault();
-            
-            switch (evt.button) {
+        function onMouseDown(evt) {
+        	switch (evt.button) {
             case LEFT_MOUSE:
                 leftMouseDown = true;
                 break;
@@ -64,6 +71,28 @@
                 rightMouseDown = true;
                 break;
             }
+        }
+
+        function onMouseUp(evt) {
+        	switch (evt.button) {
+            case LEFT_MOUSE:
+                leftMouseDown = false;
+                break;
+            case RIGHT_MOUSE:
+                rightMouseDown = false;
+                break;
+            }
+        }
+
+        function onMouseLeave() {
+            leftMouseDown = false;
+            rightMouseDown = false;
+        }
+
+        function handleStart(evt) {
+            evt.preventDefault();
+
+            onMouseDown(evt);
 
             if (leftMouseDown) {
                 ctx.beginPath();
@@ -112,14 +141,7 @@
                 ctx.fillRect(evt.offsetX - 4, evt.offsetY - 4, 8, 8);
             }
             
-            switch (evt.button) {
-            case LEFT_MOUSE:
-                leftMouseDown = false;
-                break;
-            case RIGHT_MOUSE:
-                rightMouseDown = false;
-                break;
-            }
+            onMouseUp(evt);
         }
 
         function setColor(col) {
@@ -130,10 +152,83 @@
             }));
         }
 
-        var el = $("#canvas");
-        el.mousedown(handleStart);
-        el.mouseup(handleEnd);
-        el.mousemove(handleMove);
+        function imageMouseDown(evt) {
+        	evt.preventDefault();
+
+        	onMouseDown(evt);
+
+        	imageLastX = evt.clientX;
+        	imageLastY = evt.clientY;
+        }
+
+        function imageMouseMove(evt) {
+            if (leftMouseDown) {
+            	evt.preventDefault();
+
+            	var dX = evt.clientX - imageLastX,
+            	    dY = evt.clientY - imageLastY;
+            	imageLastX = evt.clientX;
+            	imageLastY = evt.clientY;
+
+        	    var target = $(evt.currentTarget);
+        	    target.css('top', parseInt(target.css('top')) + dY);
+        	    target.css('left', parseInt(target.css('left')) + dX); 
+            }
+        }
+
+        function imageMouseUp(evt) {
+            evt.preventDefault();
+            onMouseUp(evt);
+        }
+
+        function openFile(evt) {
+            var file = evt.target.files[0], div = $("<div></div>");
+
+            var fr = new FileReader();
+            fr.onload = function () {
+                var i = $("<img src=" + fr.result + "></img>");
+                div.append(i);
+
+                var button = $("<button>Place</button>");
+                button.click(function (evt) {
+                    imageOff = i.offset();
+                    canvasOff = canvas.offset();
+
+                    var x = imageOff.left - canvasOff.left, y = imageOff.top - canvasOff.top;
+                    ctx.drawImage(i[0], x, y);
+                    div.remove();
+
+                    conn.send(JSON.stringify({
+                        type : 'image',
+                        img : fr.result,
+                        x : x,
+                        y : y
+                    }));
+                });
+                div.append(button);
+                
+                div.css({
+                    position : 'absolute',
+                    top : canvas.position().top,
+                    left : canvas.position().left
+                });
+                $("#editable").append(div);
+
+                div.mousedown(imageMouseDown);
+                div.mousemove(imageMouseMove);
+                div.mouseup(imageMouseUp);
+                div.mouseleave(onMouseLeave);
+            }
+            fr.readAsDataURL(file);
+            
+            evt.target.value = null;
+        }
+
+        canvas.mousedown(handleStart);
+        canvas.mouseup(handleEnd);
+        canvas.mousemove(handleMove);
+        canvas.mouseleave(onMouseLeave);
+        $("#image-upload-button").change(openFile);
         console.log("Added Event Listeners");
     </script>
 {% endblock %}
