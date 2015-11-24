@@ -58,25 +58,16 @@ class MessageHandler implements MessageComponentInterface {
 			$roomID = $this->connectionRoom[$from];
 			$roomConns = $this->roomUsers[$roomID];
 			
-			$color = $roomConns[$from]['color'];
+			$outMsg = json_encode(array(
+					'type' => 'stroke',
+					'color' => $roomConns[$from]['color'],
+					'x1' => $msg['x1'],
+					'y1' => $msg['y1'],
+					'x2' => $msg['x2'],
+					'y2' => $msg['y2'],
+			));
 			
-			$roomConns->rewind();
-			while ($roomConns->valid()) {
-				$conn = $roomConns->current();
-				
-				if ($conn != $from) {
-					$conn->send(json_encode(array(
-							'type' => 'stroke',
-							'color' => $color,
-							'x1' => $msg['x1'],
-							'y1' => $msg['y1'],
-							'x2' => $msg['x2'],
-							'y2' => $msg['y2'],
-					)));
-				}
-				
-				$roomConns->next();
-			}
+			$this->sendToEach($roomConns, $outMsg, $from);
 		} else if ($msg['type'] == 'set color') {
 			$roomID = $this->connectionRoom[$from];
 			$userData = $this->roomUsers[$roomID]->offsetGet($from);
@@ -84,20 +75,8 @@ class MessageHandler implements MessageComponentInterface {
 			$this->roomUsers[$roomID]->offsetSet($from, $userData);
 		} else if ($msg['type'] == 'image') {
 			$roomID = $this->connectionRoom[$from];
-			$roomConns = $this->roomUsers[$roomID];
-				
-			$color = $roomConns[$from]['color'];
-				
-			$roomConns->rewind();
-			while ($roomConns->valid()) {
-				$conn = $roomConns->current();
 			
-				if ($conn != $from) {
-					$conn->send(json_encode($msg));
-				}
-			
-				$roomConns->next();
-			}
+			$this->sendToEach($this->roomUsers[$roomID], json_encode($msg), $from);
 		}
     }
 
@@ -114,5 +93,24 @@ class MessageHandler implements MessageComponentInterface {
     	
     	echo "Exception from user $user\n";
     	echo $e->getTraceAsString();
+    }
+    
+    /**
+     * Sends a message to each of the specified ConnectionInterfaces.
+     * @param \SplObjectStorage $conns An object containing the ConnectionInterfaces the message is to be sent to.
+     * @param string $msg The message to be sent.
+     * @param ConnectionInterface $exclude A ConnectionInterface to be excluded from $conns when sending the message.
+     */
+    private function sendToEach(\SplObjectStorage $conns, $msg, ConnectionInterface $exclude = null) {
+    	$conns->rewind();
+    	while ($conns->valid()) {
+    		$conn = $conns->current();
+    			
+    		if ($conn != $exclude) {
+    			$conn->send($msg);
+    		}
+    			
+    		$conns->next();
+    	}
     }
 }
