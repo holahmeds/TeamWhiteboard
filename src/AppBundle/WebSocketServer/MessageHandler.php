@@ -63,6 +63,12 @@ class MessageHandler implements MessageComponentInterface {
 				$roomID = $this->connectionRoom[$from];
 				$this->sendToEach($this->roomUsers[$roomID], $msgJSON, $from);
 				break;
+			case 'chat' :
+				$roomID = $this->connectionRoom[$from];
+				$username = $this->roomUsers[$roomID][$from]['user'];
+				$msg['user'] = $username;
+				$this->sendToEach($this->roomUsers[$roomID], json_encode($msg), $from);
+				break;
 		}
 	}
 

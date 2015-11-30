@@ -13,6 +13,11 @@
 	        Browser does not support canvas.
 	    </canvas>
 	</div>
+	<div style="float: right">
+	   <ul id="chat-list">
+	   </ul>
+	   <input id="message-box">
+	</div>
 {% endblock %}
 
 {% block javascripts %}
@@ -56,6 +61,8 @@
             } else if (mseg.type == 'image') {
                 var image = $("<img src=" + mseg.img + "></img>");
                 ctx.drawImage(image[0], mseg.x, mseg.y);
+            } else if (mseg.type == 'chat') {
+            	$('#chat-list').append($('<li>' + mseg.user + ' : ' + mseg.message + '</li>'));
             }
         }
 
@@ -208,6 +215,17 @@
             
             evt.target.value = null;
         }
+        
+        function sendMessage(evt) {
+        	if (evt.keyCode == 13) {
+        		conn.send(JSON.stringify({
+        			type : 'chat',
+        			message : evt.target.value
+        		}));
+        		$('#chat-list').append($('<li>{{ app.user.username }} : ' + evt.target.value + '</li>'));
+        		evt.target.value = "";
+        	}
+        }
 
         canvas.mousedown(handleStart);
         canvas.mouseup(handleEnd);
@@ -218,6 +236,7 @@
         $('#color-preview').click(function () {
         	$('#color-picker')[0].jscolor.show();
         });
+        $('#message-box').keyup(sendMessage);
         console.log("Added Event Listeners");
     </script>
 {% endblock %}
