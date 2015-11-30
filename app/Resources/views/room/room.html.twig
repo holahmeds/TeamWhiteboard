@@ -1,5 +1,29 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+	<style>
+	   #editable {
+	       position: relative;
+	       width: 1000px;
+	       height: 600px;
+	       float: left;
+	   }
+	   #canvas {
+	       width: 100%;
+	       height: 100%;
+	       background: #CCCCCC;
+	   }
+	   #chat-box {
+	       width: 300px;
+	       float: right;
+	   }
+	   #chat-list {
+	       list-style-type: none;
+	       padding: 0;
+	   }
+    </style>
+{% endblock %}
+
 {% block body %}
 	<div>
 		<input id="color-value" hidden="true" value="#000000">
@@ -8,12 +32,12 @@
 		<canvas id="color-preview" height="50px" width="50px"></canvas>
 		<input type="file" id="image-upload-button">
 	</div>
-	<div id="editable" style="position: relative">
-	    <canvas id="canvas" width="1300px" height="600px" style="background: #CCCCCC;">
+	<div id="editable">
+	    <canvas id="canvas">
 	        Browser does not support canvas.
 	    </canvas>
 	</div>
-	<div style="float: right">
+	<div id="chat-box">
 	   <ul id="chat-list">
 	   </ul>
 	   <input id="message-box">
@@ -37,6 +61,10 @@
             RIGHT_MOUSE = 2;
 
         var canvas = $('#canvas');
+        canvas.ready(function () {
+        	canvas[0].width = canvas.width();
+        	canvas[0].height = canvas.height();
+        });
         var ctx = canvas[0].getContext('2d');
         ctx.lineWidth = 4;
         
